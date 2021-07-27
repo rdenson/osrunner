@@ -9,14 +9,14 @@ import (
 func handleTildeExpansion(path string) (string, error) {
   requestedLocationHasTilde, regexMatchErr := regexp.MatchString(`^~/.*`, path)
   if regexMatchErr != nil {
-    return nil, regexMatchErr
+    return "", regexMatchErr
   }
 
   if requestedLocationHasTilde {
-    path = os.Getenv("HOME") + fsLocation[1:]
+    path = os.Getenv("HOME") + path[1:]
   }
 
-  return path
+  return path, nil
 }
 
 // for exec'ing a vanilla command:
@@ -25,7 +25,7 @@ func SetCommand(fsLocation, executableName string, execArgs ...string) (*Externa
   extCmd := new(ExternalCommand)
 
   workingDirectory, tildeExpansionErr := handleTildeExpansion(fsLocation)
-  if tildeExpansionErr {
+  if tildeExpansionErr != nil {
     return nil, tildeExpansionErr
   }
 
